@@ -306,6 +306,8 @@ BuildRequires:	cross-x86_64-w64-mingw32-libc
 %endif
 %endif
 BuildRequires:	%{mklibname -d vosk}
+BuildRequires:	%{mklibname -d fst}
+BuildRequires:	cmake(kaldi)
 Recommends:	direct3d-implementation
 
 %patchlist
