@@ -1,0 +1,12 @@
+diff -up wine-proton_9.0/dlls/winevulkan/Makefile.in.omv~ wine-proton_9.0/dlls/winevulkan/Makefile.in
+--- wine-proton_9.0/dlls/winevulkan/Makefile.in.omv~	2024-05-19 17:50:48.995034905 +0200
++++ wine-proton_9.0/dlls/winevulkan/Makefile.in	2024-05-19 17:50:54.097201229 +0200
+@@ -2,7 +2,7 @@ MODULE    = winevulkan.dll
+ UNIXLIB   = winevulkan.so
+ IMPORTLIB = winevulkan
+ IMPORTS   = user32 gdi32 advapi32 setupapi win32u
+-UNIX_LIBS = -lwin32u $(PTHREAD_LIBS)
++UNIX_LIBS = -lwin32u -lm $(PTHREAD_LIBS)
+ 
+ SOURCES = \
+ 	loader.c \

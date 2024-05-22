@@ -313,6 +313,7 @@ Recommends:	direct3d-implementation
 
 %patchlist
 proton-experimental-9.0-ntdll-tests-compile.patch
+proton-vulkan-libm-linkage.patch
 
 %description
 Wine is a program which allows running Microsoft Windows programs
