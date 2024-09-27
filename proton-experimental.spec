@@ -23,14 +23,14 @@
 
 %define major 1
 %define devname %{mklibname -d wine}
-#define beta rc4
 
 %bcond_with rebuild_unicode
 
 Name:		proton-experimental
-Version:	9.0
-Release:	%{?beta:0.%{beta}.}1
-Source0:	https://github.com/ValveSoftware/wine/archive/refs/heads/experimental_%{version}.tar.gz
+Version:	9.0.20240927
+%define major %(echo %{version}|cut -d. -f1-2)
+Release:	1
+Source0:	https://github.com/ValveSoftware/wine/archive/refs/heads/experimental_%{major}.tar.gz
 Summary:	Proton Experimental - runs MS Windows programs
 License:	LGPLv2+
 Group:		Emulators
@@ -312,8 +312,8 @@ BuildRequires:	cmake(kaldi)
 Recommends:	direct3d-implementation
 
 %patchlist
-proton-experimental-9.0-ntdll-tests-compile.patch
 proton-vulkan-libm-linkage.patch
+proton-9.0-compile.patch
 
 %description
 Wine is a program which allows running Microsoft Windows programs
@@ -358,7 +358,7 @@ proton-experimental-direct3d is the implementation from Proton-experimental
 dxvk is a reimplementation on top of Vulkan rather than OpenGL
 
 %prep
-%autosetup -p1 -n wine-experimental_%{version}
+%autosetup -p1 -n wine-experimental_%{major}
 
 cd dlls/winevulkan
 ./make_vulkan
@@ -652,6 +652,7 @@ done
 %{_libdir}/wine/*/*.sys
 %{_libdir}/wine/*/*.tlb
 %{_libdir}/wine/*/*.msstyles
+%exclude %{_libdir}/wine/*/d3d8.dll
 %exclude %{_libdir}/wine/*/d3d9.dll
 %exclude %{_libdir}/wine/*/d3d10core.dll
 %exclude %{_libdir}/wine/*/d3d11.dll
@@ -678,6 +679,7 @@ done
 %{_prefix}/lib/wine/*/*.exe16
 %{_prefix}/lib/wine/*/*.drv16
 %{_prefix}/lib/wine/*/*.mod16
+%exclude %{_prefix}/lib/wine/*/d3d8.dll
 %exclude %{_prefix}/lib/wine/*/d3d9.dll
 %exclude %{_prefix}/lib/wine/*/d3d10core.dll
 %exclude %{_prefix}/lib/wine/*/d3d11.dll
@@ -686,11 +688,13 @@ done
 
 %files direct3d
 %if %{with wow64}
+%{_prefix}/lib/wine/*/d3d8.dll
 %{_prefix}/lib/wine/*/d3d9.dll
 %{_prefix}/lib/wine/*/d3d10core.dll
 %{_prefix}/lib/wine/*/d3d11.dll
 %{_prefix}/lib/wine/*/dxgi.dll
 %endif
+%{_libdir}/wine/*/d3d8.dll
 %{_libdir}/wine/*/d3d9.dll
 %{_libdir}/wine/*/d3d10core.dll
 %{_libdir}/wine/*/d3d11.dll

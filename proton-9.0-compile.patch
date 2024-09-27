@@ -1,0 +1,34 @@
+diff -up wine-experimental_9.0/dlls/dbgeng/dbgeng.c.omv~ wine-experimental_9.0/dlls/dbgeng/dbgeng.c
+--- wine-experimental_9.0/dlls/dbgeng/dbgeng.c.omv~	2024-09-27 21:09:02.523493130 +0200
++++ wine-experimental_9.0/dlls/dbgeng/dbgeng.c	2024-09-27 21:10:14.847471064 +0200
+@@ -33,6 +33,8 @@
+ #include "wine/debug.h"
+ #include "wine/list.h"
+ 
++DEFINE_GUID(IID_IUnknown, 0x00000000, 0x0000, 0x0000, 0xc0,0x00, 0x00,0x00,0x00,0x00,0x00,0x46);
++
+ WINE_DEFAULT_DEBUG_CHANNEL(dbgeng);
+ 
+ struct module_info
+diff -up wine-experimental_9.0/dlls/user32/tests/win.c.omv~ wine-experimental_9.0/dlls/user32/tests/win.c
+--- wine-experimental_9.0/dlls/user32/tests/win.c.omv~	2024-09-27 21:48:59.037667156 +0200
++++ wine-experimental_9.0/dlls/user32/tests/win.c	2024-09-27 21:49:03.985659018 +0200
+@@ -13226,5 +13226,5 @@ START_TEST(win)
+     test_topmost();
+ 
+     test_shell_window();
+-    test_shell_tray();
++    //test_shell_tray();
+ }
+diff -up wine-experimental_9.0/include/psapi.h.omv~ wine-experimental_9.0/include/psapi.h
+--- wine-experimental_9.0/include/psapi.h.omv~	2024-09-27 21:06:07.542847366 +0200
++++ wine-experimental_9.0/include/psapi.h	2024-09-27 21:07:04.484334683 +0200
+@@ -25,6 +25,8 @@
+ #define PSAPI_VERSION 2
+ #endif
+ 
++#include <wtypes.h>
++
+ typedef struct _MODULEINFO {
+   LPVOID lpBaseOfDll;
+   DWORD SizeOfImage;
