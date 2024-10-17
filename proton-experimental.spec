@@ -34,7 +34,7 @@ Source0:	https://github.com/ValveSoftware/wine/archive/refs/heads/experimental_%
 Summary:	Proton Experimental - runs MS Windows programs
 License:	LGPLv2+
 Group:		Emulators
-URL:		http://www.winehq.com/
+URL:		https://www.winehq.com/
 
 Source2:	wine.binfmt
 
