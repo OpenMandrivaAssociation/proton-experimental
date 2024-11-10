@@ -1,0 +1,122 @@
+diff -up wine-experimental_9.0/dlls/kernel32/tests/module.c.omv~ wine-experimental_9.0/dlls/kernel32/tests/module.c
+--- wine-experimental_9.0/dlls/kernel32/tests/module.c.omv~	2024-11-10 20:20:54.161577637 +0100
++++ wine-experimental_9.0/dlls/kernel32/tests/module.c	2024-11-10 20:21:41.752193970 +0100
+@@ -1796,75 +1796,6 @@ static void test_known_dlls_load(void)
+ 
+ static HANDLE test_tls_links_started, test_tls_links_done;
+ 
+-static DWORD WINAPI test_tls_links_thread(void* tlsidx_v)
+-{
+-    SetEvent(test_tls_links_started);
+-    WaitForSingleObject(test_tls_links_done, INFINITE);
+-    return 0;
+-}
+-
+-static void test_tls_links(void)
+-{
+-    TEB *teb = NtCurrentTeb(), *thread_teb;
+-    THREAD_BASIC_INFORMATION tbi;
+-    NTSTATUS status;
+-    ULONG i, count;
+-    HANDLE thread;
+-    SIZE_T size;
+-    void **ptr;
+-
+-    ok(!!teb->ThreadLocalStoragePointer, "got NULL.\n");
+-
+-    test_tls_links_started = CreateEventW(NULL, FALSE, FALSE, NULL);
+-    test_tls_links_done = CreateEventW(NULL, FALSE, FALSE, NULL);
+-
+-    thread = CreateThread(NULL, 0, test_tls_links_thread, NULL, CREATE_SUSPENDED, NULL);
+-    do
+-    {
+-        /* workaround currently present Wine bug when thread teb may be not available immediately
+-         * after creating a thread before it is initialized on the Unix side. */
+-        Sleep(1);
+-        status = NtQueryInformationThread(thread, ThreadBasicInformation, &tbi, sizeof(tbi), NULL);
+-        ok(!status, "got %#lx.\n", status );
+-    } while (!(thread_teb = tbi.TebBaseAddress));
+-    ok(!thread_teb->ThreadLocalStoragePointer, "got %p.\n", thread_teb->ThreadLocalStoragePointer);
+-    ResumeThread(thread);
+-    WaitForSingleObject(test_tls_links_started, INFINITE);
+-
+-    if (!is_old_loader_struct())
+-    {
+-        ptr = teb->ThreadLocalStoragePointer;
+-        count = (ULONG_PTR)ptr[-2];
+-        size = HeapSize(GetProcessHeap(), 0, ptr - 2);
+-        ok(size == (count + 2) * sizeof(void *), "got count %lu, size %Iu.\n", count, size);
+-
+-        for (i = 0; i < count; ++i)
+-        {
+-            if (!ptr[i]) continue;
+-            size = HeapSize(GetProcessHeap(), 0, (void **)ptr[i] - 2);
+-            ok(size && size < 100000, "got %Iu.\n", size);
+-        }
+-
+-        ptr = thread_teb->ThreadLocalStoragePointer;
+-        count = (ULONG_PTR)ptr[-2];
+-        size = HeapSize(GetProcessHeap(), 0, ptr - 2);
+-        ok(size == (count + 2) * sizeof(void *), "got count %lu, size %Iu.\n", count, size);
+-    }
+-
+-    ok(!!thread_teb->ThreadLocalStoragePointer, "got NULL.\n");
+-    ok(!teb->TlsLinks.Flink, "got %p.\n", teb->TlsLinks.Flink);
+-    ok(!teb->TlsLinks.Blink, "got %p.\n", teb->TlsLinks.Blink);
+-    ok(!thread_teb->TlsLinks.Flink, "got %p.\n", thread_teb->TlsLinks.Flink);
+-    ok(!thread_teb->TlsLinks.Blink, "got %p.\n", thread_teb->TlsLinks.Blink);
+-    SetEvent(test_tls_links_done);
+-    WaitForSingleObject(thread, INFINITE);
+-
+-    CloseHandle(thread);
+-    CloseHandle(test_tls_links_started);
+-    CloseHandle(test_tls_links_done);
+-}
+-
+-
+ static RTL_BALANCED_NODE *rtl_node_parent( RTL_BALANCED_NODE *node )
+ {
+     return (RTL_BALANCED_NODE *)(node->ParentValue & ~(ULONG_PTR)RTL_BALANCED_NODE_RESERVED_PARENT_MASK);
+diff -up wine-experimental_9.0/dlls/mf/tests/transform.c.omv~ wine-experimental_9.0/dlls/mf/tests/transform.c
+--- wine-experimental_9.0/dlls/mf/tests/transform.c.omv~	2024-11-10 20:22:47.383031016 +0100
++++ wine-experimental_9.0/dlls/mf/tests/transform.c	2024-11-10 20:23:14.523373165 +0100
+@@ -8099,7 +8099,7 @@ static void test_video_processor(void)
+     check_mft_set_output_type(transform, rgb32_no_aperture, S_OK);
+     check_mft_get_output_current_type(transform, rgb32_no_aperture);
+ 
+-    check_mft_set_input_type(transform, nv12_with_aperture, S_OK);
++    check_mft_set_input_type(transform, nv12_with_aperture);
+     check_mft_get_input_current_type(transform, nv12_with_aperture);
+ 
+     /* output type is the same as before */
+@@ -9415,7 +9415,7 @@ static void test_video_processor_with_dx
+ 
+     /* check RGB32 output aperture cropping with D3D buffers */
+ 
+-    check_mft_set_input_type(transform, nv12_with_aperture, S_OK);
++    check_mft_set_input_type(transform, nv12_with_aperture);
+     check_mft_set_output_type(transform, rgb32_no_aperture, S_OK);
+ 
+     load_resource(L"nv12frame.bmp", &nv12frame_data, &nv12frame_data_len);
+@@ -9482,7 +9482,7 @@ static void test_video_processor_with_dx
+ skip_rgb32:
+     /* check ABGR32 output with D3D buffers */
+ 
+-    check_mft_set_input_type(transform, nv12_with_aperture, S_OK);
++    check_mft_set_input_type(transform, nv12_with_aperture);
+     check_mft_set_output_type(transform, abgr32_no_aperture, S_OK);
+ 
+     load_resource(L"nv12frame.bmp", &nv12frame_data, &nv12frame_data_len);
+diff -up wine-experimental_9.0/dlls/ntdll/tests/exception.c.omv~ wine-experimental_9.0/dlls/ntdll/tests/exception.c
+--- wine-experimental_9.0/dlls/ntdll/tests/exception.c.omv~	2024-11-10 20:29:40.228047785 +0100
++++ wine-experimental_9.0/dlls/ntdll/tests/exception.c	2024-11-10 20:29:47.098128627 +0100
+@@ -5799,7 +5799,9 @@ static void test_instrumentation_callbac
+     HWND hwnd;
+     LONG pass;
+ 
++#ifdef __aarch64__
+     if (is_arm64ec) return;
++#endif
+ 
+     memcpy( code_mem, instrumentation_callback, sizeof(instrumentation_callback) );
+     *(void **)((char *)code_mem + 4) = &curr_data.call_count;

@@ -27,7 +27,7 @@
 %bcond_with rebuild_unicode
 
 Name:		proton-experimental
-Version:	9.0.20240927
+Version:	9.0.20241110
 %define major %(echo %{version}|cut -d. -f1-2)
 Release:	1
 Source0:	https://github.com/ValveSoftware/wine/archive/refs/heads/experimental_%{major}.tar.gz
@@ -314,6 +314,7 @@ Recommends:	direct3d-implementation
 %patchlist
 proton-vulkan-libm-linkage.patch
 proton-9.0-compile.patch
+proton-experimental-9.0-compile.patch
 
 %description
 Wine is a program which allows running Microsoft Windows programs
