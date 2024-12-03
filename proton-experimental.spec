@@ -27,7 +27,7 @@
 %bcond_with rebuild_unicode
 
 Name:		proton-experimental
-Version:	9.0.20241110
+Version:	9.0.20241121
 %define major %(echo %{version}|cut -d. -f1-2)
 Release:	1
 Source0:	https://github.com/ValveSoftware/wine/archive/refs/heads/experimental_%{major}.tar.gz
@@ -341,9 +341,11 @@ develop programs which make use of wine.
 Wine is often updated.
 
 %package direct3d
-Summary:       The Direct3D implementation from the Wine project
-Group:         Emulators
-Provides:      direct3d-implementation
+Summary:	The Direct3D implementation from the Wine project
+Group:		Emulators
+Provides:	direct3d-implementation
+Conflicts:	dxvk
+Conflicts:	wine-direct3d
 
 %description direct3d
 The Direct3D implementation from the Wine project
