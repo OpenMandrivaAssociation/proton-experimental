@@ -27,8 +27,8 @@
 %bcond_with rebuild_unicode
 
 Name:		proton-experimental
-Version:	9.0.20241121
-%define major %(echo %{version}|cut -d. -f1-2)
+Version:	10.0+20251017
+%define major %(echo %{version}|cut -d+ -f1)
 Release:	1
 Source0:	https://github.com/ValveSoftware/wine/archive/refs/heads/experimental_%{major}.tar.gz
 Summary:	Proton Experimental - runs MS Windows programs
@@ -37,6 +37,10 @@ Group:		Emulators
 URL:		https://www.winehq.com/
 
 Source2:	wine.binfmt
+
+%define vk_version 1.4.318
+Source10:	https://raw.githubusercontent.com/KhronosGroup/Vulkan-Docs/v%{vk_version}/xml/vk.xml
+Source11:	https://raw.githubusercontent.com/KhronosGroup/Vulkan-Docs/v%{vk_version}/xml/video.xml
 
 %ifarch %{x86_64}
 # Wine needs GCC 4.4+ on x86_64 for MS ABI support.
@@ -62,6 +66,7 @@ BuildRequires:	docbook-dtd-sgml
 BuildRequires:	docbook-utils
 BuildRequires:	docbook-dtd-sgml
 BuildRequires:	sgml-tools
+BuildRequires:	%mklibname -d piper2024
 BuildRequires:	pkgconfig(jack)
 BuildRequires:	pkgconfig(libpulse)
 BuildRequires:	pkgconfig(libmpg123)
@@ -99,7 +104,6 @@ BuildRequires:	gsm-devel
 BuildRequires:	unixODBC-devel
 BuildRequires:	pkgconfig(gnutls)
 BuildRequires:	gettext-devel
-BuildRequires:	d3d-devel >= 10.4.0-1
 BuildRequires:	pkgconfig(lcms2)
 BuildRequires:	pkgconfig(osmesa)
 BuildRequires:	pkgconfig(libglvnd)
@@ -176,7 +180,6 @@ BuildRequires:	devel(libdbus-1)
 BuildRequires:	devel(libgsm)
 BuildRequires:	devel(libodbc)
 BuildRequires:	devel(libgnutls)
-BuildRequires:	libd3dadapter9-devel
 BuildRequires:	devel(liblcms2)
 BuildRequires:	devel(libOSMesa)
 BuildRequires:	devel(libGL)
@@ -315,6 +318,9 @@ Recommends:	direct3d-implementation
 proton-vulkan-libm-linkage.patch
 proton-9.0-compile.patch
 proton-experimental-9.0-compile.patch
+proton-10.0-ffmpeg-8.0.patch
+proton-be-compile.patch
+proton-experimental-compile.patch
 
 %description
 Wine is a program which allows running Microsoft Windows programs
@@ -364,6 +370,15 @@ dxvk is a reimplementation on top of Vulkan rather than OpenGL
 %autosetup -p1 -n wine-experimental_%{major}
 
 cd dlls/winevulkan
+VK_VERSION=$(grep ^VK_XML_VERSION make_vulkan |cut -d'"' -f2)
+if [ "$VK_VERSION" != "%{vk_version}" ]; then
+	echo "Update the Vulkan XML files to $VK_VERSION"
+	exit 1
+fi    
+export XDG_CACHE_HOME=$(pwd)/xdgcache
+mkdir -p xdgcache/wine
+cp %{S:10} xdgcache/wine/vk-%{vk_version}.xml
+cp %{S:11} xdgcache/wine/video-%{vk_version}.xml
 ./make_vulkan
 cd ../..
 tools/make_requests
@@ -391,7 +406,8 @@ export LDFLAGS="$(echo %{build_ldflags} |sed -e 's,-m64,,g;s,-mx32,,g')"
 export CFLAGS="${CFLAGS} -fno-omit-frame-pointer"
 %endif
 
-%ifarch %{x86_64}
+%if 0
+#arch %{x86_64}
 # As of wine 5.6, clang 10.0:
 # winecfg in 64bit mode crashes on startup if built with
 # clang. Probably clang doesn't get the M$ ABI right
@@ -438,13 +454,13 @@ PKG_CONFIG_PATH="%{_prefix}/lib/pkgconfig:%{_datadir}/pkgconfig" \
 	echo "32-bit configure failed. Full config.log:"
 	cat config.log
 fi
-if cat config.log |grep "won't be supported" |grep -q -vE '(OSSv4|netapi|pcsclite|vosk)'; then
+if cat config.log |grep "won't be supported" |grep -q -vE '(OSSv4|netapi|pcsclite|piper|vosk)'; then
 	echo "Full config.log:"
 	cat config.log
-	echo "****************************************************"
+	echo "***********************************************************"
 	echo "Missing 32-bit dependencies detected:"
-	echo "(Only missing OSSv4, netapi, pcsclite, vosk are OK):"
-	echo "****************************************************"
+	echo "(Only missing OSSv4, netapi, pcsclite, piper, vosk are OK):"
+	echo "***********************************************************"
 	cat config.log |grep "won't be supported"
 	exit 1
 fi

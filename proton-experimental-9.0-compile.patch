@@ -1,7 +1,7 @@
-diff -up wine-experimental_9.0/dlls/kernel32/tests/module.c.omv~ wine-experimental_9.0/dlls/kernel32/tests/module.c
---- wine-experimental_9.0/dlls/kernel32/tests/module.c.omv~	2024-11-10 20:20:54.161577637 +0100
-+++ wine-experimental_9.0/dlls/kernel32/tests/module.c	2024-11-10 20:21:41.752193970 +0100
-@@ -1796,75 +1796,6 @@ static void test_known_dlls_load(void)
+diff -up wine-experimental_10.0/dlls/kernel32/tests/module.c.3~ wine-experimental_10.0/dlls/kernel32/tests/module.c
+--- wine-experimental_10.0/dlls/kernel32/tests/module.c.3~	2025-10-03 20:55:35.000000000 +0200
++++ wine-experimental_10.0/dlls/kernel32/tests/module.c	2025-10-17 01:54:14.812630742 +0200
+@@ -1696,75 +1696,6 @@ static void test_ddag_node(void)
  
  static HANDLE test_tls_links_started, test_tls_links_done;
  
@@ -77,10 +77,10 @@ diff -up wine-experimental_9.0/dlls/kernel32/tests/module.c.omv~ wine-experiment
  static RTL_BALANCED_NODE *rtl_node_parent( RTL_BALANCED_NODE *node )
  {
      return (RTL_BALANCED_NODE *)(node->ParentValue & ~(ULONG_PTR)RTL_BALANCED_NODE_RESERVED_PARENT_MASK);
-diff -up wine-experimental_9.0/dlls/mf/tests/transform.c.omv~ wine-experimental_9.0/dlls/mf/tests/transform.c
---- wine-experimental_9.0/dlls/mf/tests/transform.c.omv~	2024-11-10 20:22:47.383031016 +0100
-+++ wine-experimental_9.0/dlls/mf/tests/transform.c	2024-11-10 20:23:14.523373165 +0100
-@@ -8099,7 +8099,7 @@ static void test_video_processor(void)
+diff -up wine-experimental_10.0/dlls/mf/tests/transform.c.3~ wine-experimental_10.0/dlls/mf/tests/transform.c
+--- wine-experimental_10.0/dlls/mf/tests/transform.c.3~	2025-10-03 20:55:35.000000000 +0200
++++ wine-experimental_10.0/dlls/mf/tests/transform.c	2025-10-17 01:54:14.813261786 +0200
+@@ -8954,7 +8954,7 @@ static void test_video_processor(BOOL us
      check_mft_set_output_type(transform, rgb32_no_aperture, S_OK);
      check_mft_get_output_current_type(transform, rgb32_no_aperture);
  
@@ -89,7 +89,7 @@ diff -up wine-experimental_9.0/dlls/mf/tests/transform.c.omv~ wine-experimental_
      check_mft_get_input_current_type(transform, nv12_with_aperture);
  
      /* output type is the same as before */
-@@ -9415,7 +9415,7 @@ static void test_video_processor_with_dx
+@@ -10273,7 +10273,7 @@ static void test_video_processor_with_dx
  
      /* check RGB32 output aperture cropping with D3D buffers */
  
@@ -98,7 +98,7 @@ diff -up wine-experimental_9.0/dlls/mf/tests/transform.c.omv~ wine-experimental_
      check_mft_set_output_type(transform, rgb32_no_aperture, S_OK);
  
      load_resource(L"nv12frame.bmp", &nv12frame_data, &nv12frame_data_len);
-@@ -9482,7 +9482,7 @@ static void test_video_processor_with_dx
+@@ -10340,7 +10340,7 @@ static void test_video_processor_with_dx
  skip_rgb32:
      /* check ABGR32 output with D3D buffers */
  
@@ -107,16 +107,16 @@ diff -up wine-experimental_9.0/dlls/mf/tests/transform.c.omv~ wine-experimental_
      check_mft_set_output_type(transform, abgr32_no_aperture, S_OK);
  
      load_resource(L"nv12frame.bmp", &nv12frame_data, &nv12frame_data_len);
-diff -up wine-experimental_9.0/dlls/ntdll/tests/exception.c.omv~ wine-experimental_9.0/dlls/ntdll/tests/exception.c
---- wine-experimental_9.0/dlls/ntdll/tests/exception.c.omv~	2024-11-10 20:29:40.228047785 +0100
-+++ wine-experimental_9.0/dlls/ntdll/tests/exception.c	2024-11-10 20:29:47.098128627 +0100
-@@ -5799,7 +5799,9 @@ static void test_instrumentation_callbac
-     HWND hwnd;
+diff -up wine-experimental_10.0/dlls/ntdll/tests/exception.c.3~ wine-experimental_10.0/dlls/ntdll/tests/exception.c
+--- wine-experimental_10.0/dlls/ntdll/tests/exception.c.3~	2025-10-03 20:55:35.000000000 +0200
++++ wine-experimental_10.0/dlls/ntdll/tests/exception.c	2025-10-17 01:55:16.798726737 +0200
+@@ -5776,7 +5776,9 @@ static void test_instrumentation_callbac
      LONG pass;
+ 
  
 +#ifdef __aarch64__
      if (is_arm64ec) return;
 +#endif
  
-     memcpy( code_mem, instrumentation_callback, sizeof(instrumentation_callback) );
-     *(void **)((char *)code_mem + 4) = &curr_data.call_count;
+     func_nt_flag = (void *)((char *)code_mem + 512);
+     memcpy( func_nt_flag, call_func_nt_flag, sizeof(call_func_nt_flag) );
