@@ -1,17 +1,6 @@
-diff -up wine-proton_10.0/dlls/bcrypt/tests/bcrypt.c.omv~ wine-proton_10.0/dlls/bcrypt/tests/bcrypt.c
---- wine-proton_10.0/dlls/bcrypt/tests/bcrypt.c.omv~	2025-11-16 21:49:37.270405752 +0100
-+++ wine-proton_10.0/dlls/bcrypt/tests/bcrypt.c	2025-11-16 21:51:36.178860886 +0100
-@@ -2774,6 +2774,7 @@ static void test_rsa_encrypt(void)
-         ok(ret == STATUS_SUCCESS, "got %lx\n", ret);
-         BCryptDestroyKey(key);
-     }
-+    }
- }
- 
- static void test_RSA(void)
-diff -up wine-proton_10.0/dlls/dwrite/tests/layout.c.omv~ wine-proton_10.0/dlls/dwrite/tests/layout.c
---- wine-proton_10.0/dlls/dwrite/tests/layout.c.omv~	2025-11-16 21:56:36.300359671 +0100
-+++ wine-proton_10.0/dlls/dwrite/tests/layout.c	2025-11-16 21:56:44.656700463 +0100
+diff -up wine-experimental_11.0/dlls/dwrite/tests/layout.c.omv~ wine-experimental_11.0/dlls/dwrite/tests/layout.c
+--- wine-experimental_11.0/dlls/dwrite/tests/layout.c.omv~	2025-11-16 21:56:36.300359671 +0100
++++ wine-experimental_11.0/dlls/dwrite/tests/layout.c	2025-11-16 21:56:44.656700463 +0100
 @@ -4779,7 +4779,7 @@ static void test_pixelsnapping(void)
      baseline = get_scaled_font_metric(metrics.ascent, 12.0, &metrics);
      ok(ctxt.originX == originX, "got %f, originX %f\n", ctxt.originX, originX);
@@ -21,9 +10,9 @@ diff -up wine-proton_10.0/dlls/dwrite/tests/layout.c.omv~ wine-proton_10.0/dlls/
  
      ctxt.snapping_disabled = FALSE;
  
-diff -up wine-proton_10.0/dlls/mfreadwrite/tests/mfplat.c.omv~ wine-proton_10.0/dlls/mfreadwrite/tests/mfplat.c
---- wine-proton_10.0/dlls/mfreadwrite/tests/mfplat.c.omv~	2025-11-16 21:57:08.663129068 +0100
-+++ wine-proton_10.0/dlls/mfreadwrite/tests/mfplat.c	2025-11-16 21:57:16.735147533 +0100
+diff -up wine-experimental_11.0/dlls/mfreadwrite/tests/mfplat.c.omv~ wine-experimental_11.0/dlls/mfreadwrite/tests/mfplat.c
+--- wine-experimental_11.0/dlls/mfreadwrite/tests/mfplat.c.omv~	2025-11-16 21:57:08.663129068 +0100
++++ wine-experimental_11.0/dlls/mfreadwrite/tests/mfplat.c	2025-11-16 21:57:16.735147533 +0100
 @@ -1807,7 +1807,7 @@ static void test_source_reader_transform
          ATTR_UINT32(MF_MT_ALL_SAMPLES_INDEPENDENT, 1),
          ATTR_UINT32(MF_MT_COMPRESSED, 0, .todo = TRUE),
@@ -33,9 +22,9 @@ diff -up wine-proton_10.0/dlls/mfreadwrite/tests/mfplat.c.omv~ wine-proton_10.0/
          {0},
      };
      IMFStreamDescriptor *video_stream;
-diff -up wine-proton_10.0/dlls/opencl/Makefile.in.omv~ wine-proton_10.0/dlls/opencl/Makefile.in
---- wine-proton_10.0/dlls/opencl/Makefile.in.omv~	2025-11-17 01:59:34.485070576 +0100
-+++ wine-proton_10.0/dlls/opencl/Makefile.in	2025-11-17 01:59:40.860816065 +0100
+diff -up wine-experimental_11.0/dlls/opencl/Makefile.in.omv~ wine-experimental_11.0/dlls/opencl/Makefile.in
+--- wine-experimental_11.0/dlls/opencl/Makefile.in.omv~	2025-11-17 01:59:34.485070576 +0100
++++ wine-experimental_11.0/dlls/opencl/Makefile.in	2025-11-17 01:59:40.860816065 +0100
 @@ -1,6 +1,6 @@
  MODULE    = opencl.dll
  UNIXLIB   = opencl.so
@@ -44,9 +33,9 @@ diff -up wine-proton_10.0/dlls/opencl/Makefile.in.omv~ wine-proton_10.0/dlls/ope
  
  SOURCES = \
  	pe_thunks.c \
-diff -up wine-proton_10.0/dlls/winedmo/libavcodec/pcm_byte_order_reverse_bsf.c.omv~ wine-proton_10.0/dlls/winedmo/libavcodec/pcm_byte_order_reverse_bsf.c
---- wine-proton_10.0/dlls/winedmo/libavcodec/pcm_byte_order_reverse_bsf.c.omv~	2025-11-17 02:15:08.177013202 +0100
-+++ wine-proton_10.0/dlls/winedmo/libavcodec/pcm_byte_order_reverse_bsf.c	2025-11-17 02:50:06.156140863 +0100
+diff -up wine-experimental_11.0/dlls/winedmo/libavcodec/pcm_byte_order_reverse_bsf.c.omv~ wine-experimental_11.0/dlls/winedmo/libavcodec/pcm_byte_order_reverse_bsf.c
+--- wine-experimental_11.0/dlls/winedmo/libavcodec/pcm_byte_order_reverse_bsf.c.omv~	2025-11-17 02:15:08.177013202 +0100
++++ wine-experimental_11.0/dlls/winedmo/libavcodec/pcm_byte_order_reverse_bsf.c	2025-11-17 02:50:06.156140863 +0100
 @@ -28,21 +28,29 @@
  
  #define IS_EMPTY(pkt) (!(pkt)->data && !(pkt)->side_data_elems)
@@ -82,27 +71,7 @@ diff -up wine-proton_10.0/dlls/winedmo/libavcodec/pcm_byte_order_reverse_bsf.c.o
          return AVERROR(EAGAIN);
  
      tmp_pkt = av_packet_alloc();
-@@ -55,6 +63,19 @@ int ff_bsf_get_packet(AVBSFContext *ctx,
-     return 0;
- }
- 
-+typedef struct FFBitStreamFilter {
-+    /**
-+     * The public AVBitStreamFilter. See bsf.h for it.
-+     */
-+    AVBitStreamFilter p;
-+
-+    int priv_data_size;
-+    int (*init)(AVBSFContext *ctx);
-+    int (*filter)(AVBSFContext *ctx, AVPacket *pkt);
-+    void (*close)(AVBSFContext *ctx);
-+    void (*flush)(AVBSFContext *ctx);
-+} FFBitStreamFilter;
-+
- static enum AVCodecID reverse_codec_id(enum AVCodecID codec_id)
- {
-     switch (codec_id)
-@@ -77,7 +98,7 @@ static enum AVCodecID reverse_codec_id(e
+@@ -77,7 +85,7 @@ static enum AVCodecID reverse_codec_id(e
  
  static int init(AVBSFContext *ctx)
  {
@@ -111,7 +80,7 @@ diff -up wine-proton_10.0/dlls/winedmo/libavcodec/pcm_byte_order_reverse_bsf.c.o
          return AVERROR(EINVAL);
      if (ctx->par_in->bits_per_coded_sample % 8u)
          return AVERROR(EINVAL);
-@@ -147,11 +168,14 @@ static const enum AVCodecID codec_ids[]
+@@ -147,11 +155,14 @@ static const enum AVCodecID codec_ids[]
      AV_CODEC_ID_NONE,
  };
  
@@ -130,9 +99,9 @@ diff -up wine-proton_10.0/dlls/winedmo/libavcodec/pcm_byte_order_reverse_bsf.c.o
  };
  
  #endif /* HAVE_FFMPEG */
-diff -up wine-proton_10.0/dlls/winedmo/unix_demuxer.c.omv~ wine-proton_10.0/dlls/winedmo/unix_demuxer.c
---- wine-proton_10.0/dlls/winedmo/unix_demuxer.c.omv~	2025-11-17 02:46:21.325699349 +0100
-+++ wine-proton_10.0/dlls/winedmo/unix_demuxer.c	2025-11-17 02:46:37.833797756 +0100
+diff -up wine-experimental_11.0/dlls/winedmo/unix_demuxer.c.omv~ wine-experimental_11.0/dlls/winedmo/unix_demuxer.c
+--- wine-experimental_11.0/dlls/winedmo/unix_demuxer.c.omv~	2025-11-17 02:46:21.325699349 +0100
++++ wine-experimental_11.0/dlls/winedmo/unix_demuxer.c	2025-11-17 02:46:37.833797756 +0100
 @@ -145,7 +145,7 @@ static NTSTATUS demuxer_create_streams(
          else if (codec_is_big_endian_pcm(par->codec_id))
          {
@@ -142,9 +111,9 @@ diff -up wine-proton_10.0/dlls/winedmo/unix_demuxer.c.omv~ wine-proton_10.0/dlls
              avcodec_parameters_copy( stream->filter->par_in, par );
              av_bsf_init( stream->filter );
              continue;
-diff -up wine-proton_10.0/dlls/winedmo/unix_private.h.omv~ wine-proton_10.0/dlls/winedmo/unix_private.h
---- wine-proton_10.0/dlls/winedmo/unix_private.h.omv~	2025-11-17 02:44:20.503963103 +0100
-+++ wine-proton_10.0/dlls/winedmo/unix_private.h	2025-11-17 02:44:37.978586723 +0100
+diff -up wine-experimental_11.0/dlls/winedmo/unix_private.h.omv~ wine-experimental_11.0/dlls/winedmo/unix_private.h
+--- wine-experimental_11.0/dlls/winedmo/unix_private.h.omv~	2025-11-17 02:44:20.503963103 +0100
++++ wine-experimental_11.0/dlls/winedmo/unix_private.h	2025-11-17 02:44:37.978586723 +0100
 @@ -46,7 +46,20 @@ extern int mediaconv_demuxer_open( AVFor
  
  /* libavcodec/pcm_byte_order_reverse.c */

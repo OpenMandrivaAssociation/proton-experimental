@@ -1,0 +1,13 @@
+--- wine-experimental_11.0/tools/makedep.c.omv~	2026-07-25 23:28:51.591074640 +0200
++++ wine-experimental_11.0/tools/makedep.c	2026-07-25 23:28:51.632899868 +0200
+@@ -2299,8 +2299,8 @@ static struct strarray get_default_impor
+ 
+     if (nodefaultlibs)
+     {
+-        STRARRAY_FOR_EACH( imp, &imports ) if (!strcmp( imp, "winecrt0" )) return ret;
+-        strarray_add( &ret, "winecrt0" );
++        /* Always pull compiler-rt for PE multiarch (e.g. __chkstk), even if winecrt0 is already listed. */
++        if (!strarray_exists( imports, "winecrt0" )) strarray_add( &ret, "winecrt0" );
+         if (compiler_rt) strarray_add( &ret, compiler_rt );
+         return ret;
+     }

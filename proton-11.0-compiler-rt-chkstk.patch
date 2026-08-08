@@ -1,0 +1,280 @@
+diff -urN wine-experimental_11.0/libs/compiler-rt/Makefile.in wine-experimental_11.0/libs/compiler-rt/Makefile.in
+--- wine-experimental_11.0/libs/compiler-rt/Makefile.in	2026-06-18 15:56:22.000000000 +0200
++++ wine-experimental_11.0/libs/compiler-rt/Makefile.in	2026-07-25 23:31:25.164479809 +0200
+@@ -1,12 +1,14 @@
+ EXTLIB    = libcompiler-rt.a
+ 
+ SOURCES = \
++	lib/builtins/aarch64/chkstk.S \
+ 	lib/builtins/arm/aeabi_idivmod.S \
+ 	lib/builtins/arm/aeabi_ldivmod.S \
+ 	lib/builtins/arm/aeabi_uidivmod.S \
+ 	lib/builtins/arm/aeabi_uldivmod.S \
+ 	lib/builtins/arm/divmodsi4.S \
+ 	lib/builtins/arm/udivmodsi4.S \
++	lib/builtins/arm64ec/chkstk.S \
+ 	lib/builtins/divdi3.c \
+ 	lib/builtins/divmoddi4.c \
+ 	lib/builtins/divmodsi4.c \
+@@ -20,6 +22,8 @@
+ 	lib/builtins/floatdisf.c \
+ 	lib/builtins/floatundidf.c \
+ 	lib/builtins/floatundisf.c \
++	lib/builtins/i386/chkstk.S \
++	lib/builtins/i386/chkstk2.S \
+ 	lib/builtins/mingw_fixfloat.c \
+ 	lib/builtins/udivdi3.c \
+ 	lib/builtins/udivmoddi4.c \
+@@ -29,6 +33,8 @@
+ 	lib/builtins/udivti3.c \
+ 	lib/builtins/umoddi3.c \
+ 	lib/builtins/umodsi3.c \
+-	lib/builtins/umodti3.c
++	lib/builtins/umodti3.c \
++	lib/builtins/x86_64/chkstk.S \
++	lib/builtins/x86_64/chkstk2.S
+ 
+ INSTALL_DEV = $(EXTLIB)
+diff -urN wine-experimental_11.0/libs/compiler-rt/lib/builtins/aarch64/chkstk.S wine-experimental_11.0/libs/compiler-rt/lib/builtins/aarch64/chkstk.S
+--- wine-experimental_11.0/libs/compiler-rt/lib/builtins/aarch64/chkstk.S	1970-01-01 01:00:00.000000000 +0100
++++ wine-experimental_11.0/libs/compiler-rt/lib/builtins/aarch64/chkstk.S	2026-07-25 23:31:27.473434675 +0200
+@@ -0,0 +1,34 @@
++// This file is dual licensed under the MIT and the University of Illinois Open
++// Source Licenses. See LICENSE.TXT for details.
++
++#include "../assembly.h"
++
++// __chkstk routine
++// This routine is windows specific.
++// http://msdn.microsoft.com/en-us/library/ms648426.aspx
++
++// This clobbers registers x16 and x17.
++// Does not modify any memory or the stack pointer.
++
++//      mov     x15, #256 // Number of bytes of stack, in units of 16 byte
++//      bl      __chkstk
++//      sub     sp, sp, x15, lsl #4
++
++#ifdef __aarch64__
++
++#define PAGE_SIZE 4096
++
++        .p2align 2
++DEFINE_COMPILERRT_FUNCTION(__chkstk)
++        lsl    x16, x15, #4
++        mov    x17, sp
++1:
++        sub    x17, x17, #PAGE_SIZE
++        subs   x16, x16, #PAGE_SIZE
++        ldr    xzr, [x17]
++        b.gt   1b
++
++        ret
++END_COMPILERRT_FUNCTION(__chkstk)
++
++#endif // __aarch64__
+diff -urN wine-experimental_11.0/libs/compiler-rt/lib/builtins/arm64ec/chkstk.S wine-experimental_11.0/libs/compiler-rt/lib/builtins/arm64ec/chkstk.S
+--- wine-experimental_11.0/libs/compiler-rt/lib/builtins/arm64ec/chkstk.S	1970-01-01 01:00:00.000000000 +0100
++++ wine-experimental_11.0/libs/compiler-rt/lib/builtins/arm64ec/chkstk.S	2026-07-25 23:31:29.610621770 +0200
+@@ -0,0 +1,30 @@
++// This file is dual licensed under the MIT and the University of Illinois Open
++// Source Licenses. See LICENSE.TXT for details.
++
++#include "../assembly.h"
++
++// __chkstk routine
++// This routine is windows specific.
++// http://msdn.microsoft.com/en-us/library/ms648426.aspx
++
++// This clobbers registers x16 and x17.
++// Does not modify any memory or the stack pointer.
++
++//      mov     x15, #256 // Number of bytes of stack, in units of 16 byte
++//      bl      __chkstk
++//      sub     sp, sp, x15, lsl #4
++
++#define PAGE_SIZE 4096
++
++        .p2align 2
++DEFINE_COMPILERRT_FUNCTION(__chkstk_arm64ec)
++        lsl    x16, x15, #4
++        mov    x17, sp
++1:
++        sub    x17, x17, #PAGE_SIZE
++        subs   x16, x16, #PAGE_SIZE
++        ldr    xzr, [x17]
++        b.gt   1b
++
++        ret
++END_COMPILERRT_FUNCTION(__chkstk_arm64ec)
+diff -urN wine-experimental_11.0/libs/compiler-rt/lib/builtins/i386/chkstk.S wine-experimental_11.0/libs/compiler-rt/lib/builtins/i386/chkstk.S
+--- wine-experimental_11.0/libs/compiler-rt/lib/builtins/i386/chkstk.S	1970-01-01 01:00:00.000000000 +0100
++++ wine-experimental_11.0/libs/compiler-rt/lib/builtins/i386/chkstk.S	2026-07-25 23:31:31.606823917 +0200
+@@ -0,0 +1,34 @@
++// This file is dual licensed under the MIT and the University of Illinois Open
++// Source Licenses. See LICENSE.TXT for details.
++
++#include "../assembly.h"
++
++// _chkstk routine
++// This routine is windows specific
++// http://msdn.microsoft.com/en-us/library/ms648426.aspx
++
++#ifdef __i386__
++
++.text
++.balign 4
++DEFINE_COMPILERRT_FUNCTION(__chkstk_ms)
++        push   %ecx
++        push   %eax
++        cmp    $0x1000,%eax
++        lea    12(%esp),%ecx
++        jb     1f
++2:
++        sub    $0x1000,%ecx
++        test   %ecx,(%ecx)
++        sub    $0x1000,%eax
++        cmp    $0x1000,%eax
++        ja     2b
++1:
++        sub    %eax,%ecx
++        test   %ecx,(%ecx)
++        pop    %eax
++        pop    %ecx
++        ret
++END_COMPILERRT_FUNCTION(__chkstk_ms)
++
++#endif // __i386__
+diff -urN wine-experimental_11.0/libs/compiler-rt/lib/builtins/i386/chkstk2.S wine-experimental_11.0/libs/compiler-rt/lib/builtins/i386/chkstk2.S
+--- wine-experimental_11.0/libs/compiler-rt/lib/builtins/i386/chkstk2.S	1970-01-01 01:00:00.000000000 +0100
++++ wine-experimental_11.0/libs/compiler-rt/lib/builtins/i386/chkstk2.S	2026-07-25 23:31:34.124531489 +0200
+@@ -0,0 +1,40 @@
++// This file is dual licensed under the MIT and the University of Illinois Open
++// Source Licenses. See LICENSE.TXT for details.
++
++#include "../assembly.h"
++
++#ifdef __i386__
++
++// _chkstk (_alloca) routine - probe stack between %esp and (%esp-%eax) in 4k increments,
++// then decrement %esp by %eax.  Preserves all registers except %esp and flags.
++// This routine is windows specific
++// http://msdn.microsoft.com/en-us/library/ms648426.aspx
++
++.text
++.balign 4
++DEFINE_COMPILERRT_FUNCTION(_alloca) // _chkstk and _alloca are the same function
++DEFINE_COMPILERRT_FUNCTION(__chkstk)
++        push   %ecx
++        cmp    $0x1000,%eax
++        lea    8(%esp),%ecx     // esp before calling this routine -> ecx
++        jb     1f
++2:
++        sub    $0x1000,%ecx
++        test   %ecx,(%ecx)
++        sub    $0x1000,%eax
++        cmp    $0x1000,%eax
++        ja     2b
++1:
++        sub    %eax,%ecx
++        test   %ecx,(%ecx)
++
++        lea    4(%esp),%eax     // load pointer to the return address into eax
++        mov    %ecx,%esp        // install the new top of stack pointer into esp
++        mov    -4(%eax),%ecx    // restore ecx
++        push   (%eax)           // push return address onto the stack
++        sub    %esp,%eax        // restore the original value in eax
++        ret
++END_COMPILERRT_FUNCTION(__chkstk)
++END_COMPILERRT_FUNCTION(_alloca)
++
++#endif // __i386__
+diff -urN wine-experimental_11.0/libs/compiler-rt/lib/builtins/x86_64/chkstk.S wine-experimental_11.0/libs/compiler-rt/lib/builtins/x86_64/chkstk.S
+--- wine-experimental_11.0/libs/compiler-rt/lib/builtins/x86_64/chkstk.S	1970-01-01 01:00:00.000000000 +0100
++++ wine-experimental_11.0/libs/compiler-rt/lib/builtins/x86_64/chkstk.S	2026-07-25 23:31:36.430027054 +0200
+@@ -0,0 +1,39 @@
++// This file is dual licensed under the MIT and the University of Illinois Open
++// Source Licenses. See LICENSE.TXT for details.
++
++#include "../assembly.h"
++
++// _chkstk routine
++// This routine is windows specific
++// http://msdn.microsoft.com/en-us/library/ms648426.aspx
++
++// Notes from r227519
++// MSVC x64s __chkstk and cygmings ___chkstk_ms do not adjust %rsp
++// themselves. It also does not clobber %rax so we can reuse it when
++// adjusting %rsp.
++
++#ifdef __x86_64__
++
++.text
++.balign 4
++DEFINE_COMPILERRT_FUNCTION(___chkstk_ms)
++        push   %rcx
++        push   %rax
++        cmp    $0x1000,%rax
++        lea    24(%rsp),%rcx
++        jb     1f
++2:
++        sub    $0x1000,%rcx
++        test   %rcx,(%rcx)
++        sub    $0x1000,%rax
++        cmp    $0x1000,%rax
++        ja     2b
++1:
++        sub    %rax,%rcx
++        test   %rcx,(%rcx)
++        pop    %rax
++        pop    %rcx
++        ret
++END_COMPILERRT_FUNCTION(___chkstk_ms)
++
++#endif // __x86_64__
+diff -urN wine-experimental_11.0/libs/compiler-rt/lib/builtins/x86_64/chkstk2.S wine-experimental_11.0/libs/compiler-rt/lib/builtins/x86_64/chkstk2.S
+--- wine-experimental_11.0/libs/compiler-rt/lib/builtins/x86_64/chkstk2.S	1970-01-01 01:00:00.000000000 +0100
++++ wine-experimental_11.0/libs/compiler-rt/lib/builtins/x86_64/chkstk2.S	2026-07-25 23:31:39.248625360 +0200
+@@ -0,0 +1,42 @@
++// This file is dual licensed under the MIT and the University of Illinois Open
++// Source Licenses. See LICENSE.TXT for details.
++
++#include "../assembly.h"
++
++#ifdef __x86_64__
++
++// _chkstk (_alloca) routine - probe stack between %rsp and (%rsp-%rax) in 4k increments,
++// then decrement %rsp by %rax.  Preserves all registers except %rsp and flags.
++// This routine is windows specific
++// http://msdn.microsoft.com/en-us/library/ms648426.aspx
++
++.text
++.balign 4
++DEFINE_COMPILERRT_FUNCTION(__alloca)
++        mov    %rcx,%rax        // x64 _alloca is a normal function with parameter in rcx
++        // fallthrough
++DEFINE_COMPILERRT_FUNCTION(___chkstk)
++        push   %rcx
++        cmp    $0x1000,%rax
++        lea    16(%rsp),%rcx     // rsp before calling this routine -> rcx
++        jb     1f
++2:
++        sub    $0x1000,%rcx
++        test   %rcx,(%rcx)
++        sub    $0x1000,%rax
++        cmp    $0x1000,%rax
++        ja     2b
++1:
++        sub    %rax,%rcx
++        test   %rcx,(%rcx)
++
++        lea    8(%rsp),%rax     // load pointer to the return address into rax
++        mov    %rcx,%rsp        // install the new top of stack pointer into rsp
++        mov    -8(%rax),%rcx    // restore rcx
++        push   (%rax)           // push return address onto the stack
++        sub    %rsp,%rax        // restore the original value in rax
++        ret
++END_COMPILERRT_FUNCTION(___chkstk)
++END_COMPILERRT_FUNCTION(__alloca)
++
++#endif // __x86_64__

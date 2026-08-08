@@ -1,0 +1,14 @@
+--- wine-experimental_11.0/libs/sqlite3/sqlite3.c	2026-08-03 23:32:20.000000000 +0200
++++ wine-experimental_11.0/libs/sqlite3/sqlite3.c	2026-08-08 22:40:00.438551585 +0200
+@@ -30706,9 +30706,9 @@
+ SQLITE_PRIVATE void SQLITE_APICALL sqlite3MemoryBarrier(void){
+ #if defined(SQLITE_MEMORY_BARRIER)
+   SQLITE_MEMORY_BARRIER;
+-#elif defined(__GNUC__)
++#elif defined(__GNUC__) || defined(__clang__)
+   __sync_synchronize();
+-#elif MSVC_VERSION>=1400
++#elif MSVC_VERSION>=1400 && (defined(_M_IX86) || defined(_M_X64) || defined(_M_AMD64))
+   _ReadWriteBarrier();
+ #elif defined(MemoryBarrier)
+   MemoryBarrier();

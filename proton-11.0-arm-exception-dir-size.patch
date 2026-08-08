@@ -1,0 +1,15 @@
+--- wine-experimental_11.0/dlls/ntdll/unwind.c.omv~	2026-07-25 22:41:01.535658361 +0200
++++ wine-experimental_11.0/dlls/ntdll/unwind.c	2026-07-25 22:41:01.575030983 +0200
+@@ -100,7 +100,12 @@ struct module_exception_dir_table
+ };
+ struct module_exception_dir_table DECLSPEC_ALLOCATE(".mrdata") exception_dir_table = { 1, MAX_MODULE_EXCEPTION_DIR_ENTRIES };
+ 
++/* Layout matches Steam's 64-bit .mrdata table; on 32-bit (arm) pointers are half size. */
++#ifdef _WIN64
+ C_ASSERT( sizeof(struct module_exception_dir_entry) == 0x18 );
++#else
++C_ASSERT( sizeof(struct module_exception_dir_entry) == 0x10 );
++#endif
+ C_ASSERT( offsetof(struct module_exception_dir_table, entries) == 0x10 );
+ 
+ void register_module_exception_directory( void *module )
