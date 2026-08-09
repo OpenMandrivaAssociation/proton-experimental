@@ -23,7 +23,7 @@
 Name:		proton-experimental
 Version:	11.0+20260808
 %define major %(echo %{version}|cut -d+ -f1)
-Release:	2
+Release:	1
 Source0:	https://github.com/ValveSoftware/wine/archive/refs/heads/experimental_%{major}.tar.gz
 Summary:	Proton Experimental - runs MS Windows programs
 License:	LGPLv2+
@@ -102,6 +102,7 @@ BuildRequires:	unixODBC-devel
 BuildRequires:	pkgconfig(gnutls)
 BuildRequires:	gettext-devel
 BuildRequires:	%mklibname -d piper2024
+BuildRequires:	%mklibname -d vosk
 BuildRequires:	pkgconfig(lcms2)
 BuildRequires:	pkgconfig(osmesa)
 BuildRequires:	pkgconfig(libglvnd)
@@ -321,12 +322,12 @@ cd build
 	--with-gstreamer \
 	|| { echo "configure failed. Full config.log:"; cat config.log; exit 1; }
 
-if cat config.log |grep "won't be supported" |grep -q -vE '(OSSv4|capi20|vosk)'; then
+if cat config.log |grep "won't be supported" |grep -q -vE '(OSSv4|capi20)'; then
 	echo "Full config.log:"
 	cat config.log
 	echo "***************************************"
 	echo "Missing dependencies detected:"
-	echo "(Only missing OSSv4, capi20, vosk are OK):"
+	echo "(Only missing OSSv4 and capi20 are OK):"
 	echo "***************************************"
 	cat config.log |grep "won't be supported"
 	exit 1
