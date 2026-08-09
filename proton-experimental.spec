@@ -23,7 +23,7 @@
 Name:		proton-experimental
 Version:	11.0+20260808
 %define major %(echo %{version}|cut -d+ -f1)
-Release:	1
+Release:	2
 Source0:	https://github.com/ValveSoftware/wine/archive/refs/heads/experimental_%{major}.tar.gz
 Summary:	Proton Experimental - runs MS Windows programs
 License:	LGPLv2+
@@ -37,8 +37,11 @@ Source10:	https://raw.githubusercontent.com/KhronosGroup/Vulkan-Docs/v%{vk_versi
 Source11:	https://raw.githubusercontent.com/KhronosGroup/Vulkan-Docs/v%{vk_version}/xml/video.xml
 
 %ifarch %{x86_64}
-# Wine needs GCC 4.4+ on x86_64 for MS ABI support.
-BuildRequires:	gcc >= 4.4
+# Wine needs GCC on x86_64 for MS ABI support. Require the actual
+# binaries — a virtual "gcc" provide can be satisfied without /usr/bin/gcc.
+BuildRequires:	/usr/bin/gcc
+BuildRequires:	/usr/bin/g++
+BuildRequires:	binutils
 %endif
 
 BuildRequires:	bison
@@ -315,14 +318,15 @@ cd build
 	--enable-archs=i386,x86_64,arm,aarch64 \
 	--with-mingw=clang \
 	--with-pulse \
-	--with-gstreamer
+	--with-gstreamer \
+	|| { echo "configure failed. Full config.log:"; cat config.log; exit 1; }
 
-if cat config.log |grep "won't be supported" |grep -q -vE '(OSSv4|capi20)'; then
+if cat config.log |grep "won't be supported" |grep -q -vE '(OSSv4|capi20|vosk)'; then
 	echo "Full config.log:"
 	cat config.log
 	echo "***************************************"
 	echo "Missing dependencies detected:"
-	echo "(Only missing OSSv4 and capi20 are OK):"
+	echo "(Only missing OSSv4, capi20, vosk are OK):"
 	echo "***************************************"
 	cat config.log |grep "won't be supported"
 	exit 1
@@ -444,9 +448,11 @@ done
 %doc ANNOUNCE.md AUTHORS README.md
 %{_bindir}/wine
 %{_libdir}/wine/*/wine
-%{_libdir}/wine/*/wine64
 %{_libdir}/wine/*/wine-preloader
+%ifarch %{x86_64}
+%{_libdir}/wine/*/wine64
 %{_libdir}/wine/*/wine64-preloader
+%endif
 %config %{_binfmtdir}/wine.conf
 %{_bindir}/winecfg
 %{_bindir}/wineconsole*
@@ -503,48 +509,53 @@ done
 %dir %{_libdir}/wine
 %ifarch %{x86_64}
 %dir %{_libdir}/wine/x86_64-unix
-%dir %{_libdir}/wine/x86_64-windows
-%{_libdir}/wine/x86_64-*/*.so
-%{_libdir}/wine/x86_64-*/*.acm
-%{_libdir}/wine/x86_64-*/*.ax
-%{_libdir}/wine/x86_64-*/*.com
-%{_libdir}/wine/x86_64-*/*.cpl
-%{_libdir}/wine/x86_64-*/*.dll
-%{_libdir}/wine/x86_64-*/*.drv
-%{_libdir}/wine/x86_64-*/*.ds
-%{_libdir}/wine/x86_64-*/*.exe
-%{_libdir}/wine/x86_64-*/*.ocx
-%{_libdir}/wine/x86_64-*/*.sys
-%{_libdir}/wine/x86_64-*/*.tlb
-%{_libdir}/wine/x86_64-*/*.msstyles
-%exclude %{_libdir}/wine/x86_64-*/d3d8.dll
-%exclude %{_libdir}/wine/x86_64-*/d3d9.dll
-%exclude %{_libdir}/wine/x86_64-*/d3d10core.dll
-%exclude %{_libdir}/wine/x86_64-*/d3d11.dll
-%exclude %{_libdir}/wine/x86_64-*/d3d12core.dll
-%exclude %{_libdir}/wine/x86_64-*/d3d12.dll
-%exclude %{_libdir}/wine/x86_64-*/dxgi.dll
+%{_libdir}/wine/x86_64-unix/*.so
 %endif
+%ifarch %{aarch64}
+%dir %{_libdir}/wine/aarch64-unix
+%{_libdir}/wine/aarch64-unix/*.so
+%endif
+# PE modules for every --enable-archs target (host unix libs are above)
+%dir %{_libdir}/wine/x86_64-windows
+%{_libdir}/wine/x86_64-windows/*.acm
+%{_libdir}/wine/x86_64-windows/*.ax
+%{_libdir}/wine/x86_64-windows/*.com
+%{_libdir}/wine/x86_64-windows/*.cpl
+%{_libdir}/wine/x86_64-windows/*.dll
+%{_libdir}/wine/x86_64-windows/*.drv
+%{_libdir}/wine/x86_64-windows/*.ds
+%{_libdir}/wine/x86_64-windows/*.exe
+%{_libdir}/wine/x86_64-windows/*.ocx
+%{_libdir}/wine/x86_64-windows/*.sys
+%{_libdir}/wine/x86_64-windows/*.tlb
+%{_libdir}/wine/x86_64-windows/*.msstyles
+%exclude %{_libdir}/wine/x86_64-windows/d3d8.dll
+%exclude %{_libdir}/wine/x86_64-windows/d3d9.dll
+%exclude %{_libdir}/wine/x86_64-windows/d3d10core.dll
+%exclude %{_libdir}/wine/x86_64-windows/d3d11.dll
+%exclude %{_libdir}/wine/x86_64-windows/d3d12core.dll
+%exclude %{_libdir}/wine/x86_64-windows/d3d12.dll
+%exclude %{_libdir}/wine/x86_64-windows/dxgi.dll
 %dir %{_libdir}/wine/aarch64-windows
-%{_libdir}/wine/aarch64-*/*.acm
-%{_libdir}/wine/aarch64-*/*.ax
-%{_libdir}/wine/aarch64-*/*.com
-%{_libdir}/wine/aarch64-*/*.cpl
-%{_libdir}/wine/aarch64-*/*.dll
-%{_libdir}/wine/aarch64-*/*.drv
-%{_libdir}/wine/aarch64-*/*.ds
-%{_libdir}/wine/aarch64-*/*.exe
-%{_libdir}/wine/aarch64-*/*.ocx
-%{_libdir}/wine/aarch64-*/*.sys
-%{_libdir}/wine/aarch64-*/*.tlb
-%{_libdir}/wine/aarch64-*/*.msstyles
-%exclude %{_libdir}/wine/aarch64-*/d3d8.dll
-%exclude %{_libdir}/wine/aarch64-*/d3d9.dll
-%exclude %{_libdir}/wine/aarch64-*/d3d10core.dll
-%exclude %{_libdir}/wine/aarch64-*/d3d11.dll
-%exclude %{_libdir}/wine/aarch64-*/d3d12core.dll
-%exclude %{_libdir}/wine/aarch64-*/d3d12.dll
-%exclude %{_libdir}/wine/aarch64-*/dxgi.dll
+%{_libdir}/wine/aarch64-windows/*.acm
+%{_libdir}/wine/aarch64-windows/*.ax
+%{_libdir}/wine/aarch64-windows/*.com
+%{_libdir}/wine/aarch64-windows/*.cpl
+%{_libdir}/wine/aarch64-windows/*.dll
+%{_libdir}/wine/aarch64-windows/*.drv
+%{_libdir}/wine/aarch64-windows/*.ds
+%{_libdir}/wine/aarch64-windows/*.exe
+%{_libdir}/wine/aarch64-windows/*.ocx
+%{_libdir}/wine/aarch64-windows/*.sys
+%{_libdir}/wine/aarch64-windows/*.tlb
+%{_libdir}/wine/aarch64-windows/*.msstyles
+%exclude %{_libdir}/wine/aarch64-windows/d3d8.dll
+%exclude %{_libdir}/wine/aarch64-windows/d3d9.dll
+%exclude %{_libdir}/wine/aarch64-windows/d3d10core.dll
+%exclude %{_libdir}/wine/aarch64-windows/d3d11.dll
+%exclude %{_libdir}/wine/aarch64-windows/d3d12core.dll
+%exclude %{_libdir}/wine/aarch64-windows/d3d12.dll
+%exclude %{_libdir}/wine/aarch64-windows/dxgi.dll
 %dir %{_libdir}/wine/arm-windows
 %{_libdir}/wine/arm-*/*.acm
 %{_libdir}/wine/arm-*/*.ax
